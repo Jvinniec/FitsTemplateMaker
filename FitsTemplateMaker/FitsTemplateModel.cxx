@@ -49,56 +49,68 @@ FitsTemplateModel& FitsTemplateModel::operator=(const FitsTemplateModel& rhs)
 }
 
 //________________________________________________________
+// Adds another Fits template to this one
 FitsTemplateModel& FitsTemplateModel::operator+=(const FitsTemplateModel& rhs)
 {
     return *this ;
 }
 
 //________________________________________________________
+// Subtracts another fits template from this one
 FitsTemplateModel& FitsTemplateModel::operator-=(const FitsTemplateModel& rhs)
 {
     return *this ;
 }
 
 //________________________________________________________
+// Multiplies this template by another one
 FitsTemplateModel& FitsTemplateModel::operator*=(const FitsTemplateModel& rhs)
 {
     return *this ;
 }
 
 //________________________________________________________
+// Divides this template by another one
 FitsTemplateModel& FitsTemplateModel::operator/=(const FitsTemplateModel& rhs)
 {
     return *this ;
 }
 
 //________________________________________________________
+// Addition operator
 const FitsTemplateModel FitsTemplateModel::operator+(const FitsTemplateModel& rhs)
 {
     
     FitsTemplateModel ret = *this ; // Create a copy of this object
-    ret += rhs ;                    // Add the new object to it
+    ret += rhs ;                    // Add the passed object to it
     return ret ;                    // Return the new object
 }
 
 //________________________________________________________
+// Subtraction operator
 const FitsTemplateModel FitsTemplateModel::operator-(const FitsTemplateModel& rhs)
 {
-    FitsTemplateModel ret = *this ;
-    ret -= rhs ;
-    return ret ;
+    FitsTemplateModel ret = *this ; // Create a copy of this object
+    ret -= rhs ;                    // Subtract the passed object from it
+    return ret ;                    // Return the new object
 }
 
 //________________________________________________________
+// Multiplication operator
 const FitsTemplateModel FitsTemplateModel::operator*(const FitsTemplateModel& rhs)
 {
-    
+    FitsTemplateModel ret = *this ; // Create a copy of this object
+    ret *= rhs ;                    // Multiply the new object by the passed one
+    return ret ;                    // Return the new object
 }
 
 //________________________________________________________
+// Division operator
 const FitsTemplateModel FitsTemplateModel::operator/(const FitsTemplateModel& rhs)
 {
-    
+    FitsTemplateModel ret = *this ; // Create a copy of this object
+    ret /= rhs ;                    // Divide the new object by the passed one
+    return ret ;                    // Return the new object
 }
 
 #pragma Mark - Protected Methods
