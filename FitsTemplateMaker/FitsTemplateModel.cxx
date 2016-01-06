@@ -11,13 +11,19 @@
 #pragma Mark - Constructors
 
 //________________________________________________________
-FitsTemplateModel::FitsTemplateModel(const std::string& type, std::vector<double> parameters)
+FitsTemplateModel::FitsTemplateModel()
 {
-    
+}
+
+//________________________________________________________
+// Basic constructor from a filename
+FitsTemplateModel::FitsTemplateModel(const std::string& filename)
+{
 }
 
 
 //________________________________________________________
+// Copy constructor
 FitsTemplateModel::FitsTemplateModel(const FitsTemplateModel& other)
 {
 }
@@ -25,7 +31,21 @@ FitsTemplateModel::FitsTemplateModel(const FitsTemplateModel& other)
 #pragma Mark - Public Methods
 
 //________________________________________________________
-bool saveFITS(const std::string& filename)
+// Extract a predefined model from a fits file
+void FitsTemplateModel::ReadModelFromFile(const std::string& filename)
+{
+    // Attempt to open the specified fits file.
+    try {
+        fitsObj.reset(new CCfits::FITS(filename));
+    } catch (CCfits::FITS::CantOpen & e) {
+        std::cerr << e.message() << std::endl ;
+    }
+    
+    // Now fill the internal storage object
+}
+
+//________________________________________________________
+bool FitsTemplateModel::saveFITS(const std::string& filename)
 {
     return false ;
 }
