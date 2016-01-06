@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6E8C5AC31C3C7E9E00FFABB6 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6E8C5AC21C3C7E9E00FFABB6 /* main.cpp */; };
+		6E8C5AC31C3C7E9E00FFABB6 /* FitsMaker.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 6E8C5AC21C3C7E9E00FFABB6 /* FitsMaker.cxx */; };
+		6E8C5ACB1C3C7F9B00FFABB6 /* FitsTemplateModel.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 6E8C5AC91C3C7F9B00FFABB6 /* FitsTemplateModel.cxx */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +25,9 @@
 
 /* Begin PBXFileReference section */
 		6E8C5ABF1C3C7E9E00FFABB6 /* FitsTemplateMaker */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = FitsTemplateMaker; sourceTree = BUILT_PRODUCTS_DIR; };
-		6E8C5AC21C3C7E9E00FFABB6 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		6E8C5AC21C3C7E9E00FFABB6 /* FitsMaker.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FitsMaker.cxx; sourceTree = "<group>"; };
+		6E8C5AC91C3C7F9B00FFABB6 /* FitsTemplateModel.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FitsTemplateModel.cxx; sourceTree = "<group>"; };
+		6E8C5ACA1C3C7F9B00FFABB6 /* FitsTemplateModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FitsTemplateModel.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +60,9 @@
 		6E8C5AC11C3C7E9E00FFABB6 /* FitsTemplateMaker */ = {
 			isa = PBXGroup;
 			children = (
-				6E8C5AC21C3C7E9E00FFABB6 /* main.cpp */,
+				6E8C5AC21C3C7E9E00FFABB6 /* FitsMaker.cxx */,
+				6E8C5AC91C3C7F9B00FFABB6 /* FitsTemplateModel.cxx */,
+				6E8C5ACA1C3C7F9B00FFABB6 /* FitsTemplateModel.h */,
 			);
 			path = FitsTemplateMaker;
 			sourceTree = "<group>";
@@ -118,7 +123,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6E8C5AC31C3C7E9E00FFABB6 /* main.cpp in Sources */,
+				6E8C5AC31C3C7E9E00FFABB6 /* FitsMaker.cxx in Sources */,
+				6E8C5ACB1C3C7F9B00FFABB6 /* FitsTemplateModel.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,6 +170,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-L/Users/joshcardenzana/Applications/CCfits/lib",
+					"-lCCfits",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -200,6 +210,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-L/Users/joshcardenzana/Applications/CCfits/lib",
+					"-lCCfits",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;
