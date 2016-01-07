@@ -61,6 +61,16 @@
             ReferencedContainer = "container:FitsTemplateMaker.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Users/joshcardenzana/codetests/FitsTemplateMaker/InputFitsFiles/gammaCygni.fits"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/joshcardenzana/codetests/FitsTemplateMaker/OutputFitsFiles/test.fits"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

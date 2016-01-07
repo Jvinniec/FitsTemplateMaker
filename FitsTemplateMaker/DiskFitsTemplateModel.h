@@ -1,5 +1,5 @@
 //
-//  DiskFitsTemplateModel.hpp
+//  DiskFitsTemplateModel.h
 //  FitsTemplateMaker
 //
 //  Created by Josh Cardenzana on 1/5/16.

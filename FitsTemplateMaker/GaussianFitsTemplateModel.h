@@ -1,5 +1,5 @@
 //
-//  GaussianFitsTemplateModel.hpp
+//  GaussianFitsTemplateModel.h
 //  FitsTemplateMaker
 //
 //  Created by Josh Cardenzana on 1/5/16.

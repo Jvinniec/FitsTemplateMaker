@@ -21,7 +21,27 @@
 //________________________________________________________
 int main(int argc, const char * argv[])
 {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+    // Check if we have enough parameters
+    if (argc < 3 ) {
+        std::cout << "USAGE: FitsMaker <inputfile> <outputfile>" << std::endl;
+        return 0 ;
+    }
+    
+    std::string input_file("/Users/joshcardenzana/codetests/FitsTemplateMaker/InputFitsFiles/gammaCygni.fits") ;
+    std::string output_file(argv[2]) ;
+    
+    // Open the fits file
+    std::cout << "Reading fits file: " << input_file << std::endl;
+    FitsTemplateModel* model = new FitsTemplateModel(input_file) ;
+    
+    // Modify the model in some way
+    model->SetCoordJ2000() ;
+    
+    // Save the fits file
+    std::cout << "Saving new fits file: " << output_file << std::endl;
+    model->SaveFits(std::string(argv[2]), true) ;
+    
+    delete model ;
+    
+    return 0 ;
 }

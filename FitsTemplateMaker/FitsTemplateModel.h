@@ -14,8 +14,10 @@
 #ifndef FitsTemplateMaker_FitsTemplateModel_h
 #define FitsTemplateMaker_FitsTemplateModel_h
 
+#include <map>
 #include <stdio.h>
 #include <string>
+#include <valarray>
 #include <vector>
 
 // CCfits Headers
@@ -41,19 +43,58 @@ public :
     // 'name' is assumed to point to a fits file from which the template will be extracted
     FitsTemplateModel(const std::string& filename) ;
     // Copy constructor
-    FitsTemplateModel(const FitsTemplateModel& other) ;
+    FitsTemplateModel(const FitsTemplateModel&other, const std::string& new_file_name) ;
     // Destructor
-    virtual ~FitsTemplateModel() {} ;
+    virtual ~FitsTemplateModel() ;
+    
+    // Methods for adding keys to the fits file
+    void AddKey(const std::string& key, const std::string& description, const double value) ;
+    void AddKey(const std::string& key, const std::string& description, const std::string& value) ;
+    
+    // Methods for getting the key value and the key description
+    std::string GetKeyDescription(const std::string& key) {return std::string() ;}
+    
+    // Method for initializing the various model parameters
+    void GetCoordinateSystem(WorldCoor* worldCoor) ;
     
     // Read the model from a file
-    virtual void ReadModelFromFile(const std::string& filename) ;
+    virtual void InitModelFromFile(const std::string& filename) ;
+    
+    // Method for querying the model at a give position
+    virtual double EvaluateAt(const double xpos, const double ypos, const std::string& coordsystem) const ;
     
     // "Get" or "set" the "model_name_" for this template
-    std::string getModelName() {return model_name_ ;}
-    void setModelName(const std::string& modelname) {model_name_ = modelname ;}
+    std::string GetModelName() {return model_name_ ;}
+    void SetModelName(const std::string& modelname) {model_name_ = modelname ;}
+    
+    // Various "getters" for protected data members
+    virtual std::string GetCoordX() const {return std::string(wcInfo->ctype[0]) ;}
+    virtual std::string GetCoordY() const {return std::string(wcInfo->ctype[1]) ;}
+    virtual std::string GetCoordSystem() const {return coord_system_ ;}
+    virtual std::string GetFitsFilePath() const {return fits_file_path_ ;}
+    virtual std::valarray<double> GetImageInfo() const {return image_info_ ;}
+    virtual WorldCoor* GetWorldCoor() const {return wcInfo ;}
+    virtual long GetNumColumns() const {return wcInfo->nxpix ;}
+    virtual long GetNumRows() const {return wcInfo->nypix ;}
+    
+    // Various "setters" for protected data members
+    virtual void SetCoordJ2000() ;
+    virtual void SetCoordB1950() ;
+    virtual void SetCoordGalactic() ;
+    virtual void SetCoordEcliptic() ;
+    virtual void SetFitsFilePath(const std::string& new_fits_file_path) {fits_file_path_ = new_fits_file_path ;}
+    
+    // The following allow the creation of multiple objects
+    
+    // NOTE: DO NOT USE THE FOLLOWING 3 METHODS UNLESS YOU ARE ABSOLUTELY SURE YOU KNOW
+    //       WHAT YOU'RE DOING! Instead use one of the three setters above that will make
+    //       sure all of the appropriate data members are handled.
+    //virtual void SetCoordX(const std::string& new_coord_x) {coord_x_ = new_coord_x ;}
+    //virtual void SetCoordY(const std::string& new_coord_y) {coord_y_ = new_coord_y ;}
+    //virtual void SetCoordSystem(const std::string& new_coord_system) {coord_system_ = new_coord_system ;}
     
     // Outputs the fits file based on a filename provided
-    bool saveFITS(const std::string& filename) ;
+    virtual bool SaveFits(const std::string& filename, bool overwrite=false) ;
     
     // Overloaded methods for equating, subtracting, adding, multiplying, and dividing FITS templates
     virtual FitsTemplateModel& operator=(const FitsTemplateModel& rhs) ;
@@ -66,22 +107,56 @@ public :
     virtual const FitsTemplateModel operator*(const FitsTemplateModel& rhs) ;
     virtual const FitsTemplateModel operator/(const FitsTemplateModel& rhs) ;
     
+    // Mathematical methods for getting various properties of the image, or manipulating
+    // its contents
+    virtual double Integral() const ;
+    virtual void Normalize() ;
+    virtual void Rotate(const double rotation_deg) ;
+    virtual void Scale(const double multiplier) ;
+    
 protected :
     // name of the object represented by this template
     std::string model_name_ ;
     // Variable holding the information on the model type
     std::string model_type_ ;
+    // Model coordinate system
+    std::string coord_system_ ;
     // Vector holding the passed parameters for the model requested
     std::vector<double> model_params_ ;
     
     /// Path to the FITS file being handled by this instance.
-    std::string FitsFilePath;
+    std::string fits_file_path_ ;
     
-    // WCS related objects
+    /**
+     * The following variables are used in conjunction with the "EvaluateAt" class. They will be filled
+     * the first time "evaluateAt" is called. This means there is a small amount of overhead computation
+     * time the first time "evaluateAt" is called, but it reduces the computation time of subsequent
+     * calls while also not filling unnecessary parameter should the user never need to use this method.
+     */
+    std::valarray<double> image_info_ ; // image data information
     WorldCoor* wcInfo ;                 // image coordinate information
+//    long num_columns_, num_rows_ ;      // number of horizontal/vertical bins in the image
     
     // Fits related objects
-    std::unique_ptr<CCfits::FITS> fitsObj ;
+//    std::shared_ptr<CCfits::HDU> fits_header_object_ ;
+
+    // Map of keys. The map has the form <"KEY", <"description", value> >
+    std::map<std::string, std::pair<std::string, double> > list_of_keys_ ;
+    
+    // This method does the bulk of the work and will need to be uniquely implemented for any inheriting class.
+    // Note that for this class it doesnt do anything as this class should only be used for filling from a
+    // pre-existing fits file
+    virtual void FillImageData() {} ;
+    
+    // Applies a given math operation between bins of two maps
+    template <class BinaryOperation>
+    FitsTemplateModel& ApplyOperator(const FitsTemplateModel& rhs, BinaryOperation binary_op) ;
+    
+    // Methods for updating the fits header keywords
+    virtual void AddKeys(std::shared_ptr<CCfits::FITS> fits_object) ;
+    virtual void InitMandatoryFitsHeaderKeywords(std::shared_ptr<CCfits::FITS> fits_object) ;
+    virtual void InitUserDefinedFitsHeaderKeywords(std::shared_ptr<CCfits::FITS> fits_object) ;
+    virtual void InitProgramFitsHeaderKeywords(std::shared_ptr<CCfits::FITS> fits_object) ;
     
 private :
     
