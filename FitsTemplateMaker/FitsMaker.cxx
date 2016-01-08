@@ -35,7 +35,9 @@ int main(int argc, const char * argv[])
     FitsTemplateModel* model = new FitsTemplateModel(input_file) ;
     
     // Modify the model in some way
-    model->SetCoordJ2000() ;
+    //model->SetCoordJ2000() ;
+    *model -= *model ;
+    
     //model->Rotate(45.0) ;
     // Save the fits file
     std::cout << "Saving new fits file: " << output_file << std::endl;

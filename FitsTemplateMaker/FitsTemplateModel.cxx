@@ -128,8 +128,9 @@ void FitsTemplateModel::GetCoordinateSystem(WorldCoor* worldCoor)
     // Set the appropriate value of coordSys based on the values of xCoord & yCoord
     // <xCoord>,<yCoord> -- <saved value of coordSys>
     // RA,DEC -- J2000
-    // GLON,GLAT -- Galactic
-    // <anything else> -- J2000
+    // GLON,GLAT -- GALACTIC
+    // ELON,ELAT -- ECLIPTIC
+    // <anything else> -- J2000 (default)
     
     // I've chosen to include a special case for J2000 rather than omitting it to make
     // adding additional cases in the future easier and incase we ever want to change the default.
@@ -150,12 +151,12 @@ void FitsTemplateModel::GetCoordinateSystem(WorldCoor* worldCoor)
 
     } else if ((coord_x_.compare("GLON") == 0) && (coord_y_.compare("GLAT") == 0)) {
         // Galactic longitude and latitude
-        coord_system_ = "Galactic" ;
+        coord_system_ = "GALACTIC" ;
         // Set the value of the coordinate system for this map
         wcInfo->syswcs = 3 ;
     } else if ((coord_x_.compare("ELON") == 0) && (coord_y_.compare("ELAT") == 0)) {
         // Galactic longitude and latitude
-        coord_system_ = "Ecliptic" ;
+        coord_system_ = "ECLIPTIC" ;
         // Set the value of the coordinate system for this map
         wcInfo->syswcs = 4 ;
     } else {
@@ -479,7 +480,7 @@ bool FitsTemplateModel::SaveFits(const std::string& filename, bool overwrite)
         // this image is unsigned short data, demonstrating the cfitsio extension
         // to the FITS standard.
         
-        pFits.reset( new CCfits::FITS(fileName, USHORT_IMG, naxis, naxes) );
+        pFits.reset( new CCfits::FITS(fileName, DOUBLE_IMG, naxis, naxes) );
     } catch (CCfits::FITS::CantCreate) {
         // ... or not, as the case may be.
         return false ;
