@@ -17,7 +17,6 @@
 // WCS header
 #include "wcs.h"
 
-
 // Method for converting coordinates generically
 void ConvertCoordinates(double *xcoord, double *ycoord,
                         const std::string& old_coord_system_,

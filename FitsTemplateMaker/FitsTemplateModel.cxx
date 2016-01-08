@@ -42,6 +42,7 @@ FitsTemplateModel::FitsTemplateModel(const FitsTemplateModel& other, const std::
 //________________________________________________________
 FitsTemplateModel::~FitsTemplateModel()
 {
+    wcsfree(wcInfo) ;
 }
 
 #pragma mark - Public Methods
@@ -260,15 +261,15 @@ void FitsTemplateModel::SetCoordJ2000()
     // find the new center position if the coord_system_ has changed
     double new_xref(wcInfo->xref), new_yref(wcInfo->yref) ;
     
+    // Convert the coordinates from whatever they were to the new coordinates
+    ConvertCoordinates(&new_xref, &new_yref, coord_system_, "J2000") ;
+    
     // Get the new coordinates
     char ctype1[9], ctype2[9] ;
     std::snprintf(ctype1, 9, "RA--TAN") ;
     std::snprintf(ctype2, 9, "DEC-TAN") ;
     
-    // Convert the coordinates from whatever they were to the new coordinates
-    ConvertCoordinates(&new_xref, &new_yref, coord_system_, "J2000") ;
-    
-//    WorldCoor* old_wcInfo = wcInfo ;
+    // Reinitialize the wcs information
     wcInfo = wcskinit(wcInfo->nxpix,	/* Number of pixels along x-axis */
                       wcInfo->nypix,	/* Number of pixels along y-axis */
                       ctype1,           /* FITS WCS projection for axis 1 */
@@ -277,7 +278,7 @@ void FitsTemplateModel::SetCoordJ2000()
                       wcInfo->yrefpix,	/* Reference pixel coordinates */
                       new_xref,         /* Coordinate at reference pixel in degrees */
                       new_yref,         /* Coordinate at reference pixel in degrees */
-                      nullptr,          /* Rotation matrix, used if not NULL */
+                      wcInfo->cd,       /* Rotation matrix, used if not NULL */
                       wcInfo->cdelt[0],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->cdelt[1],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->rot,      /* Rotation angle in degrees, if cd is NULL */
@@ -286,11 +287,6 @@ void FitsTemplateModel::SetCoordJ2000()
 
     // Reset the coordinates
     coord_system_ = "J2000" ;
-    
-    // delete
-    //delete[] ctype1 ;
-    //delete[] ctype2 ;
-//    delete old_wcInfo ;
     
     return ;
 }
@@ -304,20 +300,19 @@ void FitsTemplateModel::SetCoordB1950()
     std::cerr << "[ERROR] Cannot convert to B1950 coordinates at this time!" << std::endl;
     return ;
     
-    
     // Check if the coordinate system is already in J2000 coordinates
     if (coord_system_.compare("B1950") == 0) return ;
     
     // find the new center position if the coord_system_ has changed
     double new_xref(wcInfo->xref), new_yref(wcInfo->yref) ;
     
+    // Convert the coordinates from whatever they were to the new coordinates
+    ConvertCoordinates(&new_xref, &new_yref, coord_system_, "B1950") ;
+    
     // Get the new coordinates
     char ctype1[9], ctype2[9] ;
     std::snprintf(ctype1, 9, "RA---TAN") ;
     std::snprintf(ctype2, 9, "DEC--TAN") ;
-    
-    // Convert the coordinates from whatever they were to the new coordinates
-    ConvertCoordinates(&new_xref, &new_yref, coord_system_, "B1950") ;
     
     WorldCoor* old_wcInfo = wcInfo ;
     wcInfo = wcskinit(wcInfo->nxpix,	/* Number of pixels along x-axis */
@@ -328,7 +323,7 @@ void FitsTemplateModel::SetCoordB1950()
                       wcInfo->yrefpix,	/* Reference pixel coordinates */
                       new_xref,	/* Coordinate at reference pixel in degrees */
                       new_yref,	/* Coordinate at reference pixel in degrees */
-                      nullptr,	/* Rotation matrix, used if not NULL */
+                      wcInfo->cd,	/* Rotation matrix, used if not NULL */
                       wcInfo->cdelt[0],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->cdelt[1],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->rot,	/* Rotation angle in degrees, if cd is NULL */
@@ -372,7 +367,7 @@ void FitsTemplateModel::SetCoordGalactic()
                       wcInfo->yrefpix,	/* Reference pixel coordinates */
                       new_xref,	/* Coordinate at reference pixel in degrees */
                       new_yref,	/* Coordinate at reference pixel in degrees */
-                      nullptr,	/* Rotation matrix, used if not NULL */
+                      wcInfo->cd,	/* Rotation matrix, used if not NULL */
                       wcInfo->cdelt[0],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->cdelt[1],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->rot,	/* Rotation angle in degrees, if cd is NULL */
@@ -402,6 +397,9 @@ void FitsTemplateModel::SetCoordEcliptic()
     // find the new center position if the coord_system_ has changed
     double new_xref(wcInfo->xref), new_yref(wcInfo->yref) ;
     
+    // Convert the coordinates from whatever they were to the new coordinates
+    ConvertCoordinates(&new_xref, &new_yref, coord_system_, "ECLIPTIC") ;
+    
     // Get the new coordinates
     char ctype1[9], ctype2[9] ;
     std::snprintf(ctype1, 9, "ELON-TAN") ;
@@ -419,7 +417,7 @@ void FitsTemplateModel::SetCoordEcliptic()
                       wcInfo->yrefpix,	/* Reference pixel coordinates */
                       new_xref,	/* Coordinate at reference pixel in degrees */
                       new_yref,	/* Coordinate at reference pixel in degrees */
-                      nullptr,	/* Rotation matrix, used if not NULL */
+                      wcInfo->cd,	/* Rotation matrix, used if not NULL */
                       wcInfo->cdelt[0],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->cdelt[1],	/* scale in degrees/pixel, if cd is NULL */
                       wcInfo->rot,	/* Rotation angle in degrees, if cd is NULL */
@@ -645,10 +643,15 @@ void FitsTemplateModel::Normalize()
 //      0 1 0                     0 4 0
 //      2 3 4   -> Rotate(90) ->  1 3 5
 //      0 5 0                     0 2 0
-void FitsTemplateModel::Rotate(const double rotation_deg)
+void FitsTemplateModel::SetRotation(const double rotation_deg)
 {
+    // Get the current rotation of the coordinate system relative to the
+    // image
+    
+    // TODO: Add method to get the current rotation angle so we can update it instead of setting it.
     // Increment the rotation of the map by the specified number of degrees.
     wcsdeltset( wcInfo, wcInfo->cdelt[0], wcInfo->cdelt[1], rotation_deg) ;
+//    wcInfo->rot += rotation_deg ;
 }
 
 
@@ -716,6 +719,8 @@ void FitsTemplateModel::InitMandatoryFitsHeaderKeywords(std::shared_ptr<CCfits::
 void FitsTemplateModel::InitUserDefinedFitsHeaderKeywords(std::shared_ptr<CCfits::FITS> fits_object)
 {
     if (fits_object == nullptr) return ;
+    
+    // TODO: Add functionality to allow users to add their own fits keywords
 }
 
 //________________________________________________________
@@ -731,6 +736,14 @@ void FitsTemplateModel::InitProgramFitsHeaderKeywords(std::shared_ptr<CCfits::FI
     fits_object->pHDU().addKey("CRVAL2", wcInfo->yref, "center position in y") ;
     fits_object->pHDU().addKey("CDELT1", wcInfo->cdelt[0], "bin size in x") ;
     fits_object->pHDU().addKey("CDELT2", wcInfo->cdelt[1], "bin size in y") ;
+    
+    // Rotation information
+    fits_object->pHDU().addKey("CROTA1", wcInfo->rot, "rotation in degrees") ;
+    fits_object->pHDU().addKey("CROTA2", wcInfo->rot, "rotation in degrees") ;
+    fits_object->pHDU().addKey("CD1_1", wcInfo->cd[0], "rotation matrix 1") ;
+    fits_object->pHDU().addKey("CD1_2", wcInfo->cd[1], "rotation matrix 2") ;
+    fits_object->pHDU().addKey("CD2_1", wcInfo->cd[2], "rotation matrix 3") ;
+    fits_object->pHDU().addKey("CD2_2", wcInfo->cd[3], "rotation matrix 4") ;
     
     // Update axis counters (number of axes, number of bins, etc ...)
     fits_object->pHDU().addKey("NAXIS", wcInfo->naxes, "number of axes") ;

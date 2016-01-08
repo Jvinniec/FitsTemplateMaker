@@ -27,7 +27,7 @@ int main(int argc, const char * argv[])
         return 0 ;
     }
     
-    std::string input_file("/Users/joshcardenzana/codetests/FitsTemplateMaker/InputFitsFiles/gammaCygni.fits") ;
+    std::string input_file(argv[1]) ;
     std::string output_file(argv[2]) ;
     
     // Open the fits file
@@ -36,7 +36,7 @@ int main(int argc, const char * argv[])
     
     // Modify the model in some way
     model->SetCoordJ2000() ;
-    
+    //model->Rotate(45.0) ;
     // Save the fits file
     std::cout << "Saving new fits file: " << output_file << std::endl;
     model->SaveFits(std::string(argv[2]), true) ;
