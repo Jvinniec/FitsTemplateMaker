@@ -10,7 +10,8 @@
 //    This is meant to serve as a very light weight production tool
 //    for generating FITS template files. It serves as a command line
 //    tool allowing for fits file generation based on simple qualifiers
-//    such as "gaussian" or "disk". More details to follow.
+//    such as "gaussian" or "disk" as well as some qualitative parameters
+//    describing the object. More details to follow.
 //=======================================================================
 
 #include <iostream>
@@ -36,14 +37,18 @@ int main(int argc, const char * argv[])
     
     // Modify the model in some way
     //model->SetCoordJ2000() ;
-    *model -= *model ;
+//    *model -= *model ;
+    FitsTemplateModel* model2 = new FitsTemplateModel(*model) ;
+    
+    FitsTemplateModel model3 = *model + *model ;
     
     //model->Rotate(45.0) ;
     // Save the fits file
     std::cout << "Saving new fits file: " << output_file << std::endl;
-    model->SaveFits(std::string(argv[2]), true) ;
+    model3.SaveFits(std::string(argv[2]), true) ;
     
     delete model ;
+    delete model2 ;
     
     return 0 ;
 }

@@ -32,10 +32,32 @@ FitsTemplateModel::FitsTemplateModel(const std::string& filename)
 //________________________________________________________
 // Copy constructor. Unfortunately, I'm restricted to requiring a new filename
 // in order to make a copy of the other fits object
-FitsTemplateModel::FitsTemplateModel(const FitsTemplateModel& other, const std::string& new_file_name) :
+FitsTemplateModel::FitsTemplateModel(const FitsTemplateModel& other, const std::string new_file_name) :
     image_info_(other.image_info_),
-    wcInfo(new WorldCoor(*other.wcInfo))
+    fits_file_path_(new_file_name)
 {
+    if (fits_file_path_.compare(std::string()) == 0) fits_file_path_ = other.fits_file_path_ ;
+    
+    // Now create a unique version of wcInfo
+    wcInfo = wcskinit(other.wcInfo->nxpix,      /* Number of pixels along x-axis */
+                      other.wcInfo->nypix,      /* Number of pixels along y-axis */
+                      other.wcInfo->ctype[0],	/* FITS WCS projection for axis 1 */
+                      other.wcInfo->ctype[1],	/* FITS WCS projection for axis 2 */
+                      other.wcInfo->xrefpix,	/* Reference pixel coordinates */
+                      other.wcInfo->yrefpix,	/* Reference pixel coordinates */
+                      other.wcInfo->xref,       /* Coordinate at reference pixel in degrees */
+                      other.wcInfo->yref,       /* Coordinate at reference pixel in degrees */
+                      other.wcInfo->cd,         /* Rotation matrix, used if not NULL */
+                      other.wcInfo->cdelt[0],	/* scale in degrees/pixel, if cd is NULL */
+                      other.wcInfo->cdelt[1],	/* scale in degrees/pixel, if cd is NULL */
+                      other.wcInfo->rot,        /* Rotation angle in degrees, if cd is NULL */
+                      other.wcInfo->equinox,    /* Equinox of coordinates, 1950 and 2000 supported */
+                      other.wcInfo->epoch);
+    
+    // Copy the command_format objects which are needed when deleting this object
+    double x,y ;
+    x = 2 ;
+    y = x ;
 }
 
 
@@ -652,7 +674,6 @@ void FitsTemplateModel::SetRotation(const double rotation_deg)
     // TODO: Add method to get the current rotation angle so we can update it instead of setting it.
     // Increment the rotation of the map by the specified number of degrees.
     wcsdeltset( wcInfo, wcInfo->cdelt[0], wcInfo->cdelt[1], rotation_deg) ;
-//    wcInfo->rot += rotation_deg ;
 }
 
 

@@ -43,7 +43,7 @@ public :
     // 'name' is assumed to point to a fits file from which the template will be extracted
     FitsTemplateModel(const std::string& filename) ;
     // Copy constructor
-    FitsTemplateModel(const FitsTemplateModel&other, const std::string& new_file_name) ;
+    FitsTemplateModel(const FitsTemplateModel&other, const std::string new_file_name=std::string()) ;
     // Destructor
     virtual ~FitsTemplateModel() ;
     
